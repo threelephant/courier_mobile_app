@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:toast/toast.dart';
 
@@ -42,8 +43,6 @@ class _LoginForm extends State<LoginForm> {
   Map<String, String> _user = {};
 
   _login() async {
-    Toast.show(_user["username"], context);
-
     var res = await http.post(Uri.parse("http://192.168.1.4:5000/api/account/login"),
       headers: {
         'Content-Type': 'application/json',
@@ -59,7 +58,11 @@ class _LoginForm extends State<LoginForm> {
 
     var response = json.decode(res.body);
 
-    Toast.show(response["username"], context);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("login", response["username"]);
+    prefs.setString("token", response["token"]);
+
+    Navigator.pushNamed(context, "/");
   }
 
   @override

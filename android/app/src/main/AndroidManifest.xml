@@ -2,6 +2,7 @@
     package="com.example.courier_mobile_app">
    <application
         android:label="courier_mobile_app"
+        android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
