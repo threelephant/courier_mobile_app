@@ -21,10 +21,20 @@ class _LandingState extends State<Landing> {
 
   _loadUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // prefs.setString("login", "");
-
     _login = (prefs.getString("login") ?? "");
     _token = (prefs.getString("token") ?? "");
+
+    var checkToken = await http.get(Uri.parse("http://192.168.1.4:5000/api/users/$_login"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $_token',
+      },
+    );
+
+    if (checkToken.statusCode != 200) {
+      prefs.setString("login", "");
+    }
 
     if (_login == "") {
       Navigator.pushNamedAndRemoveUntil(

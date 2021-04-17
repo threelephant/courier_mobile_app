@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/new_orders_list.dart';
 import '../widgets/current_orders_list.dart';
 import '../widgets/old_orders_list.dart';
+import 'settings.dart';
 
 class Orders extends StatefulWidget {
   _Orders createState() => _Orders();
@@ -21,6 +22,12 @@ class _Orders extends State<Orders> {
             IconButton(
               icon: Icon(Icons.settings), 
               onPressed: () {
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(
+                    builder: (context) => Settings()
+                  )
+                );
               }
             ),
             IconButton(

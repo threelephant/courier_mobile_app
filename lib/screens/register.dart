@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toast/toast.dart';
 
 class Register extends StatelessWidget {
   @override
@@ -31,6 +35,37 @@ class RegisterForm extends StatefulWidget {
 }
 
 class _RegisterForm extends State<RegisterForm> {
+  Map<String, String> _registerInfo = { };
+
+  _register() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var login = prefs.getString("login");
+    var token = prefs.getString("token");
+
+    _registerInfo["login"] = login;
+
+    var res = await http.post(Uri.parse("http://192.168.1.4:5000/api/account/register"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(_registerInfo)
+    );
+
+    if (res.statusCode != 200) {
+      Toast.show("Something wrong...", context);
+      return;
+    }
+
+    var response = json.decode(res.body);
+    
+    prefs.setString("login", response["username"]);
+    prefs.setString("token", response["token"]);
+
+    Navigator.pushNamed(context, "/");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -47,6 +82,11 @@ class _RegisterForm extends State<RegisterForm> {
               }
               return null;
             },
+            onChanged: (String newValue) {
+              setState(() {
+                _registerInfo["last_name"] = newValue;
+              });
+            },
           ),
           TextFormField(
             decoration: const InputDecoration(
@@ -58,11 +98,21 @@ class _RegisterForm extends State<RegisterForm> {
               }
               return null;
             },
+            onChanged: (String newValue) {
+              setState(() {
+                _registerInfo["first_name"] = newValue;
+              });
+            },
           ),
           TextFormField(
             decoration: const InputDecoration(
               labelText: "Отчество"
             ),
+            onChanged: (String newValue) {
+              setState(() {
+                _registerInfo["middle_name"] = newValue;
+              });
+            },
           ),
           TextFormField(
             decoration: const InputDecoration(
@@ -74,6 +124,11 @@ class _RegisterForm extends State<RegisterForm> {
               }
               return null;
             },
+            onChanged: (String newValue) {
+              setState(() {
+                _registerInfo["phone"] = newValue;
+              });
+            },
           ),
           TextFormField(
             decoration: const InputDecoration(
@@ -84,6 +139,11 @@ class _RegisterForm extends State<RegisterForm> {
                 return "Пожалуйста, введите свой логин";
               }
               return null;
+            },
+            onChanged: (String newValue) {
+              setState(() {
+                _registerInfo["username"] = newValue;
+              });
             },
           ),
           TextFormField(
@@ -104,6 +164,11 @@ class _RegisterForm extends State<RegisterForm> {
 
               return null;
             },
+            onChanged: (String newValue) {
+              setState(() {
+                _registerInfo["password"] = newValue;
+              });
+            },
           ),
           TextFormField(
             obscureText: true,
@@ -119,6 +184,11 @@ class _RegisterForm extends State<RegisterForm> {
 
               return null;
             },
+            onChanged: (String newValue) {
+              setState(() {
+                _registerInfo["confirmPassword"] = newValue;
+              });
+            },
           ),
           Padding(
             padding: const EdgeInsets.only(top: 20),
@@ -130,7 +200,7 @@ class _RegisterForm extends State<RegisterForm> {
                     "Регистрация",
                     ), 
                   onPressed: () {
-
+                    _register();
                   },
                 ),
                 TextButton(
